@@ -3,7 +3,7 @@
   "appName": "Fasty",
   "webDir": "public",
   "server": {
-    "url": "https://viewers-certificate-grade-happiness.trycloudflare.com",
+    "url": "https://fasty-354t.onrender.com",
     "cleartext": false
   },
   "android": {
