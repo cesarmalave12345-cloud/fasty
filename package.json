@@ -1,0 +1,29 @@
+{
+  "name": "fasty",
+  "version": "0.1.0",
+  "description": "App de transporte de personas (pasajeros y conductores) para una ciudad",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "crear-admin": "node scripts/crear-admin.js",
+    "semilla": "node scripts/semilla-prueba.js",
+    "iconos": "node scripts/iconos.js",
+    "apk": "npx cap sync android && cd android && gradlew.bat assembleDebug && copy app\\build\\outputs\\apk\\debug\\app-debug.apk ..\\Fasty.apk",
+    "emulador": "%LOCALAPPDATA%\\Android\\Sdk\\emulator\\emulator.exe -avd Fasty -memory 2048 -cores 4 -gpu host -no-audio -no-boot-anim"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "express": "^5.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0"
+  }
+}

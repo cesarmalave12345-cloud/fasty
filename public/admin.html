@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fasty · Administración</title>
+  <meta name="theme-color" content="#00c96b">
+  <link rel="icon" href="/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/estilos.css">
+  <style>
+    body { background: var(--fondo-pagina); }
+    .btn.peq { min-height: 38px; }
+    .contenedor { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .pestanas { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .cifras { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+    .cifra { background: #fff; border: 1px solid var(--linea); border-radius: 12px; padding: 14px; }
+    .cifra small { color: var(--suave); }
+    .cifra strong { display: block; font-size: 26px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .tabla { width: 100%; overflow-x: auto; background: #fff; border: 1px solid var(--linea); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--linea); vertical-align: top; }
+    th { color: var(--suave); font-weight: 600; font-size: 12px; white-space: nowrap; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .caja { background: #fff; border: 1px solid var(--linea); border-radius: 12px; padding: 16px; max-width: 560px; }
+    .caja.centro { margin: 10vh auto; max-width: 380px; }
+    .btn.peq { width: auto; padding: 6px 12px; margin: 0; font-size: 14px; }
+    .grupo { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+    h4 { margin: 18px 0 0; }
+  </style>
+</head>
+<body>
+  <main class="contenedor" id="app"></main>
+  <div id="aviso" class="aviso" role="status" hidden></div>
+  <script type="module" src="/admin.js"></script>
+</body>
+</html>

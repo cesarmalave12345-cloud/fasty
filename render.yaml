@@ -1,0 +1,32 @@
+# Configuración para Render (Blueprint). Render la lee al conectar el repositorio.
+# Las variables con "sync: false" las escribes tú en el panel de Render al crear el servicio.
+services:
+  - type: web
+    name: fasty
+    runtime: node
+    plan: free
+    region: virginia # la más cercana a Venezuela entre las de Render
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/salud
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: TRUST_PROXY
+        value: "1"
+      # Base de datos en Turso: URL libsql://... y un token de acceso
+      - key: TURSO_URL
+        sync: false
+      - key: TURSO_TOKEN
+        sync: false
+      # Administrador que se crea al arrancar (PIN de 6 dígitos)
+      - key: ADMIN_TELEFONO
+        sync: false
+      - key: ADMIN_PIN
+        sync: false
+      # Códigos SMS en los registros ("Logs") mientras no haya proveedor de SMS
+      - key: SMS_PROVEEDOR
+        value: consola
+      # Crea las cuentas de prueba de scripts/semilla-prueba.js. Quítala antes de lanzar con usuarios reales.
+      - key: CUENTAS_PRUEBA
+        value: "1"

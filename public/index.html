@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fasty</title>
+  <meta name="theme-color" content="#00c96b">
+  <meta name="description" content="Pide un carro o una moto en tu ciudad.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icono-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/estilos.css">
+</head>
+<body>
+  <div class="bienvenida" id="bienvenida" aria-hidden="true">
+    <div class="logo">
+      <svg viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="24" fill="#14202b"/>
+        <path d="M15.5 22l2.5-6.5q.6-1.5 2.2-1.5h7.6q1.6 0 2.2 1.5l2.5 6.5z" fill="#00c96b"/>
+        <path d="M18.6 21.2l1.6-4.6h7.6l1.6 4.6z" fill="#14202b" opacity=".9"/>
+        <rect x="11" y="21" width="26" height="10" rx="3" fill="#00c96b"/>
+        <rect x="13" y="30" width="5" height="4.5" rx="1.5" fill="#00c96b"/><rect x="30" y="30" width="5" height="4.5" rx="1.5" fill="#00c96b"/>
+        <circle cx="16.2" cy="26" r="2" fill="#14202b"/><circle cx="31.8" cy="26" r="2" fill="#14202b"/>
+        <rect x="21" y="25" width="6" height="2" rx="1" fill="#14202b"/>
+      </svg>
+      <b>Fasty</b>
+    </div>
+    <p>Tu viaje, en minutos</p>
+    <div class="camino"><i></i><i></i><i></i></div>
+  </div>
+  <header class="barra" id="barra"></header>
+  <div id="mapa"></div>
+  <button class="circulo boton-ubicacion" id="boton-ubicacion" data-accion="mi-ubicacion" aria-label="Ir a mi ubicación" hidden></button>
+  <section id="panel" class="panel" aria-live="polite"></section>
+  <div id="cajon"></div>
+  <div id="aviso" class="aviso" role="status" hidden></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

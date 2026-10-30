@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fasty</string>
+    <string name="title_activity_main">Fasty</string>
+    <string name="package_name">com.fasty.app</string>
+    <string name="custom_url_scheme">com.fasty.app</string>
+</resources>

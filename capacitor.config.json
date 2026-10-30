@@ -1,0 +1,12 @@
+{
+  "appId": "com.fasty.app",
+  "appName": "Fasty",
+  "webDir": "public",
+  "server": {
+    "url": "https://viewers-certificate-grade-happiness.trycloudflare.com",
+    "cleartext": false
+  },
+  "android": {
+    "backgroundColor": "#ffffff"
+  }
+}
