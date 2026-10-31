@@ -502,7 +502,7 @@ function cerrarSesion() {
   render();
 }
 
-// Entrar con teléfono o correo y contraseña, crear cuenta o recuperar la contraseña (estos dos con código por SMS).
+// Entrar con celular y contraseña, crear cuenta o recuperar la contraseña (estos dos con código por SMS).
 async function enviarAuth(form, ruta, armarCuerpo) {
   const d = Object.fromEntries(new FormData(form));
   const conductor = S.authModo === 'conductor';
@@ -1022,7 +1022,7 @@ function vistaAuth() {
         <p class="auth-sub">${conductor ? 'Entra para empezar a recibir viajes.' : 'Entra y pide tu viaje en minutos.'}</p>
         ${selectorModoAuth()}
         <form id="form-auth">
-          ${campo('Teléfono o correo', 'usuario', '<input name="usuario" required placeholder="0414 123 4567" autocomplete="username">')}
+          ${campoTelefono()}
           ${campoClave('Contraseña', false)}
           <button class="btn primario" type="submit">Entrar</button>
         </form>
@@ -1587,7 +1587,7 @@ const acciones = {
 };
 
 const formularios = {
-  'form-auth': form => enviarAuth(form, '/login', d => ({ usuario: d.usuario, clave: d.clave })),
+  'form-auth': form => enviarAuth(form, '/login', d => ({ telefono: d.telefono, clave: d.clave })),
   'form-enviar-codigo': form => conBoton(form.querySelector('button[type=submit]'), async () => {
     await pedirCodigo(new FormData(form).get('telefono').trim());
     render();

@@ -9,7 +9,7 @@ Es una **PWA**: se instala desde el navegador en Android y iPhone ("Agregar a pa
 Una misma cuenta puede ser pasajero y conductor: se cambia de modo desde el perfil.
 
 **Pasajero**
-- Registro con nombre, teléfono, correo y contraseña (mínimo 8 caracteres); se entra con teléfono o correo, en "modo pasajero" o "modo conductor"
+- Registro con nombre, teléfono, correo y contraseña (mínimo 8 caracteres); se entra con celular y contraseña, en "modo pasajero" o "modo conductor"
 - **Número verificado por SMS** al crear la cuenta, y "¿Olvidaste tu contraseña?" con código por SMS
 - Mapa a pantalla completa con los carros libres cercanos, botón de menú (cajón lateral) y avatar para ir a la cuenta
 - "Elige tu viaje" con tarjetas ilustradas de carro y moto, tiempo estimado sobre el mapa y método de pago desplegable

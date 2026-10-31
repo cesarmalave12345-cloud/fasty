@@ -275,18 +275,16 @@ app.post('/api/registro', async (req, res) => {
   res.json(await iniciarSesion(await uno('SELECT * FROM usuarios WHERE telefono = ?', tel)));
 });
 
-// Se entra con el teléfono o el correo y la contraseña (las cuentas viejas usan su PIN como contraseña).
+// Se entra con el celular y la contraseña (las cuentas viejas usan su PIN como contraseña).
 app.post('/api/login', async (req, res) => {
-  const dato = String(req.body?.usuario ?? '');
-  const porCorreo = dato.includes('@');
-  const cuenta = porCorreo ? normalizarCorreo(dato) : normalizarTelefono(dato);
-  if (bloqueado(cuenta)) return falla(res, 429, 'Demasiados intentos. Espera 15 minutos.');
-  const usuario = await uno(`SELECT * FROM usuarios WHERE ${porCorreo ? 'correo' : 'telefono'} = ? AND activo = 1`, cuenta);
+  const tel = normalizarTelefono(req.body?.telefono);
+  if (bloqueado(tel)) return falla(res, 429, 'Demasiados intentos. Espera 15 minutos.');
+  const usuario = await uno('SELECT * FROM usuarios WHERE telefono = ? AND activo = 1', tel);
   if (!usuario || !verificarPin(req.body?.clave ?? '', usuario.pin_hash)) {
-    registrarFallo(cuenta);
-    return falla(res, 401, 'Datos de acceso incorrectos');
+    registrarFallo(tel);
+    return falla(res, 401, 'Celular o contraseña incorrectos');
   }
-  limpiarFallos(cuenta);
+  limpiarFallos(tel);
   res.json(await iniciarSesion(usuario));
 });
 

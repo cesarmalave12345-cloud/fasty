@@ -1,5 +1,5 @@
 // Guarda la app para que abra rápido aunque la señal sea mala.
-const CACHE = 'fasty-v7';
+const CACHE = 'fasty-v8';
 const ARCHIVOS = ['/', '/index.html', '/app.js', '/graficos.js', '/estilos.css', '/icono.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', e => {
