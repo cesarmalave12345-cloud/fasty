@@ -47,8 +47,8 @@ function vistaLogin() {
     <div class="caja centro">
       <h2>Panel de administración</h2>
       <form id="login" class="form">
-        <label>Teléfono<input name="telefono" type="tel" required autocomplete="username"></label>
-        <label>PIN<input name="pin" type="password" inputmode="numeric" maxlength="6" required autocomplete="current-password"></label>
+        <label>Teléfono o correo<input name="usuario" required autocomplete="username"></label>
+        <label>Contraseña<input name="clave" type="password" required autocomplete="current-password"></label>
         <button class="btn primario" type="submit">Entrar</button>
       </form>
     </div>`;

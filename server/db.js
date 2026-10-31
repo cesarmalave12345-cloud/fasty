@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   rol TEXT NOT NULL CHECK (rol IN ('pasajero', 'conductor', 'admin')),
   nombre TEXT NOT NULL,
   telefono TEXT NOT NULL UNIQUE,
-  pin_hash TEXT NOT NULL,
+  pin_hash TEXT NOT NULL, -- hash de la contraseña (antes era un PIN de 6 dígitos; esos siguen sirviendo)
   activo INTEGER NOT NULL DEFAULT 1,
   creado TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -141,6 +141,7 @@ const COLUMNAS_NUEVAS = [
   ['viajes', 'para_telefono', 'TEXT'],
   ['viajes', 'programado_para', 'TEXT'],
   ['viajes', 'cuadralo', 'INTEGER NOT NULL DEFAULT 0'],
+  ['usuarios', 'correo', 'TEXT'],
 ];
 
 // Valores iniciales; el administrador los cambia desde el panel.
@@ -171,6 +172,8 @@ async function preparar() {
     const existentes = await todos(`PRAGMA table_info(${tabla})`);
     if (!existentes.some(c => c.name === columna)) await ejecutar(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${tipo}`);
   }
+  // Las cuentas creadas antes de pedir correo lo tienen vacío (NULL), y eso no choca con el índice.
+  await ejecutar('CREATE UNIQUE INDEX IF NOT EXISTS usuarios_correo ON usuarios (correo)');
   await lote(Object.entries(AJUSTES_INICIALES).map(([clave, valor]) => ['INSERT OR IGNORE INTO ajustes (clave, valor) VALUES (?, ?)', clave, String(valor)]));
 }
 

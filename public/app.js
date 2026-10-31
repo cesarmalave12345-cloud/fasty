@@ -502,7 +502,7 @@ function cerrarSesion() {
   render();
 }
 
-// Entrar con teléfono y PIN, crear cuenta o recuperar el PIN (estos dos con código por SMS).
+// Entrar con teléfono o correo y contraseña, crear cuenta o recuperar la contraseña (estos dos con código por SMS).
 async function enviarAuth(form, ruta, armarCuerpo) {
   const d = Object.fromEntries(new FormData(form));
   const conductor = S.authModo === 'conductor';
@@ -518,7 +518,7 @@ async function enviarAuth(form, ruta, armarCuerpo) {
     S.modoAuth = 'login';
     if (r.usuario.rol === 'admin') return location.replace('/admin.html');
     if (conductor && !r.usuario.conductor) aviso('Tu cuenta aún no tiene vehículo. Puedes postularte como conductor desde tu cuenta.');
-    else if (ruta === '/pin/restablecer') aviso('Listo, guardamos tu nuevo PIN.');
+    else if (ruta === '/pin/restablecer') aviso('Listo, guardamos tu nueva contraseña.');
     S.modo = conductor && r.usuario.conductor ? 'conductor' : 'pasajero';
     localStorage.setItem('modo', S.modo);
     await entrar();
@@ -997,8 +997,10 @@ function camposVehiculo() {
 
 const campoTelefono = () =>
   campo('Número de teléfono', 'telefono', '<input name="telefono" type="tel" inputmode="tel" required placeholder="0414 123 4567" autocomplete="tel">');
-const campoPin = (etiqueta, nuevo) =>
-  campo(etiqueta, 'candado', `<input name="pin" type="password" inputmode="numeric" pattern="\\d{6}" maxlength="6" required placeholder="••••••" autocomplete="${nuevo ? 'new-password' : 'current-password'}">`);
+const campoCorreo = () =>
+  campo('Correo electrónico', 'correo', '<input name="correo" type="email" inputmode="email" required placeholder="ana@correo.com" autocomplete="email">');
+const campoClave = (etiqueta, nueva) =>
+  campo(etiqueta, 'candado', `<input name="clave" type="password" required ${nueva ? 'minlength="8" maxlength="128"' : ''} placeholder="${nueva ? 'Mínimo 8 caracteres' : '••••••••'}" autocomplete="${nueva ? 'new-password' : 'current-password'}">`);
 
 function selectorModoAuth() {
   const conductor = S.authModo === 'conductor';
@@ -1020,11 +1022,11 @@ function vistaAuth() {
         <p class="auth-sub">${conductor ? 'Entra para empezar a recibir viajes.' : 'Entra y pide tu viaje en minutos.'}</p>
         ${selectorModoAuth()}
         <form id="form-auth">
-          ${campoTelefono()}
-          ${campoPin('PIN de 6 dígitos', false)}
+          ${campo('Teléfono o correo', 'usuario', '<input name="usuario" required placeholder="0414 123 4567" autocomplete="username">')}
+          ${campoClave('Contraseña', false)}
           <button class="btn primario" type="submit">Entrar</button>
         </form>
-        <button class="enlace" data-accion="auth-ir" data-a="recuperar">¿Olvidaste tu PIN?</button>
+        <button class="enlace" data-accion="auth-ir" data-a="recuperar">¿Olvidaste tu contraseña?</button>
         <div class="empuja"></div>
         <p class="auth-pie">¿No tienes cuenta? <button data-accion="auth-ir" data-a="registro">Regístrate</button></p>
       </div>`;
@@ -1032,7 +1034,7 @@ function vistaAuth() {
 
   const registro = S.modoAuth === 'registro';
   const encabezado = `
-    ${cabecera(registro ? 'Crear cuenta' : 'Recuperar PIN', S.verif ? 'cambiar-numero' : 'auth-volver')}
+    ${cabecera(registro ? 'Crear cuenta' : 'Recuperar contraseña', S.verif ? 'cambiar-numero' : 'auth-volver')}
     <div class="pasos"><span class="on"></span><span class="${S.verif ? 'on' : ''}"></span></div>`;
 
   if (!S.verif) {
@@ -1040,7 +1042,7 @@ function vistaAuth() {
       <div class="auth">
         ${encabezado}
         <div class="icono-grande">${icono(registro ? 'telefono' : 'candado', 34)}</div>
-        <h1 class="auth-titulo centro">${registro ? 'Tu número de teléfono' : '¿Olvidaste tu PIN?'}</h1>
+        <h1 class="auth-titulo centro">${registro ? 'Tu número de teléfono' : '¿Olvidaste tu contraseña?'}</h1>
         <p class="auth-sub centro">Te enviaremos un código por SMS para confirmar que el número es tuyo.</p>
         ${registro ? selectorModoAuth() : ''}
         <form id="form-enviar-codigo">
@@ -1066,9 +1068,10 @@ function vistaAuth() {
           <button class="enlace" type="button" data-accion="cambiar-numero">Cambiar número</button>
         </div>
         ${registro ? campo('Nombre y apellido', 'usuario', '<input name="nombre" required autocomplete="name" placeholder="Ana Pérez">') : ''}
-        ${campoPin(registro ? 'Crea un PIN de 6 dígitos' : 'Nuevo PIN de 6 dígitos', true)}
+        ${registro ? campoCorreo() : ''}
+        ${campoClave(registro ? 'Crea una contraseña' : 'Nueva contraseña', true)}
         ${registro && conductor ? camposVehiculo() : ''}
-        <button class="btn primario" type="submit">${registro ? 'Crear cuenta' : 'Guardar PIN y entrar'}</button>
+        <button class="btn primario" type="submit">${registro ? 'Crear cuenta' : 'Guardar contraseña y entrar'}</button>
       </form>
     </div>`;
 }
@@ -1153,7 +1156,7 @@ function vistaCuenta() {
     <div class="cuenta-cabeza">
       <div class="avatar grande">${inicial(u.nombre)}</div>
       <h2>${esc(u.nombre)}</h2>
-      <small class="meta">${esc(u.telefono)}${u.conductor ? ` · Modo ${S.modo}` : ''}</small>
+      <small class="meta">${esc(u.telefono)}${u.correo ? ` · ${esc(u.correo)}` : ''}${u.conductor ? ` · Modo ${S.modo}` : ''}</small>
     </div>
     <div class="estadisticas">
       <div><small>Calificación</small><strong><span class="icono-estrella">${estrellaRellena(17)}</span>${est.calificacion ?? '—'}</strong></div>
@@ -1584,16 +1587,16 @@ const acciones = {
 };
 
 const formularios = {
-  'form-auth': form => enviarAuth(form, '/login', d => ({ telefono: d.telefono, pin: d.pin })),
+  'form-auth': form => enviarAuth(form, '/login', d => ({ usuario: d.usuario, clave: d.clave })),
   'form-enviar-codigo': form => conBoton(form.querySelector('button[type=submit]'), async () => {
     await pedirCodigo(new FormData(form).get('telefono').trim());
     render();
   }),
   'form-registro': form => enviarAuth(form, '/registro', (d, conductor) => ({
-    nombre: d.nombre, telefono: S.verif.telefono, pin: d.pin, codigo: d.codigo,
+    nombre: d.nombre, telefono: S.verif.telefono, correo: d.correo, clave: d.clave, codigo: d.codigo,
     rol: conductor ? 'conductor' : 'pasajero', conductor: conductor ? d : undefined,
   })),
-  'form-recuperar': form => enviarAuth(form, '/pin/restablecer', d => ({ telefono: S.verif.telefono, codigo: d.codigo, pin: d.pin })),
+  'form-recuperar': form => enviarAuth(form, '/pin/restablecer', d => ({ telefono: S.verif.telefono, codigo: d.codigo, clave: d.clave })),
   'form-pago': form => conBoton(form.querySelector('button'), async () => {
     const referencia = new FormData(form).get('referencia');
     actualizarViaje(await post(`/viajes/${S.viaje.id}/pago`, { referencia }));

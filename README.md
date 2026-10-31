@@ -9,8 +9,8 @@ Es una **PWA**: se instala desde el navegador en Android y iPhone ("Agregar a pa
 Una misma cuenta puede ser pasajero y conductor: se cambia de modo desde el perfil.
 
 **Pasajero**
-- Entrada con teléfono y PIN de 6 dígitos, en "modo pasajero" o "modo conductor"
-- **Número verificado por SMS** al crear la cuenta, y "¿Olvidaste tu PIN?" con código por SMS
+- Registro con nombre, teléfono, correo y contraseña (mínimo 8 caracteres); se entra con teléfono o correo, en "modo pasajero" o "modo conductor"
+- **Número verificado por SMS** al crear la cuenta, y "¿Olvidaste tu contraseña?" con código por SMS
 - Mapa a pantalla completa con los carros libres cercanos, botón de menú (cajón lateral) y avatar para ir a la cuenta
 - "Elige tu viaje" con tarjetas ilustradas de carro y moto, tiempo estimado sobre el mapa y método de pago desplegable
 - Pantalla "¡Viaje completado!" con recibo descargable y calificación
@@ -104,7 +104,7 @@ Variables de entorno:
 
 ## Verificación por SMS
 
-Al crear una cuenta o recuperar el PIN, la app envía un código de 6 dígitos. El código vence en 10 minutos y se bloquea tras 5 intentos fallidos. Hay que esperar 60 segundos para pedir otro, y se envían como máximo 5 por número y 20 por IP cada hora, para que nadie te gaste el saldo de SMS. Al recuperar el PIN, la app responde igual exista o no la cuenta, y cierra las sesiones abiertas en otros teléfonos.
+Al crear una cuenta o recuperar la contraseña, la app envía un código de 6 dígitos. El código vence en 10 minutos y se bloquea tras 5 intentos fallidos. Hay que esperar 60 segundos para pedir otro, y se envían como máximo 5 por número y 20 por IP cada hora, para que nadie te gaste el saldo de SMS. Al recuperar la contraseña, la app responde igual exista o no la cuenta, y cierra las sesiones abiertas en otros teléfonos.
 
 Para enviar SMS de verdad:
 1. Crea una cuenta en Twilio, compra un número con SMS y activa Venezuela en *Messaging → Geo permissions*.

@@ -64,7 +64,7 @@ async function estadisticas(columna, calificacion, id) {
 async function perfil(u) {
   const c = await conductorDe(u.id);
   return {
-    id: u.id, rol: u.rol, nombre: u.nombre, telefono: u.telefono, creado: u.creado,
+    id: u.id, rol: u.rol, nombre: u.nombre, telefono: u.telefono, correo: u.correo, creado: u.creado,
     conductor: c && { tipo: c.tipo, vehiculo: c.vehiculo, color: c.color, placa: c.placa, aprobado: c.aprobado, en_linea: c.en_linea },
     como_pasajero: await estadisticas('pasajero_id', 'calif_pasajero', u.id),
     como_conductor: c ? await estadisticas('conductor_id', 'calif_conductor', u.id) : null,
@@ -210,6 +210,10 @@ app.get('/api/config', async (req, res) => {
 
 const telefonoValido = tel => tel.length >= 10 && tel.length <= 13;
 const existeTelefono = async tel => Boolean(await uno('SELECT 1 AS si FROM usuarios WHERE telefono = ?', tel));
+const normalizarCorreo = correo => String(correo ?? '').trim().toLowerCase();
+const correoValido = correo => correo.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+const claveValida = clave => typeof clave === 'string' && clave.length >= 8 && clave.length <= 128;
+const ERROR_CLAVE = 'La contraseña debe tener al menos 8 caracteres';
 
 app.post('/api/verificacion/enviar', async (req, res) => {
   const tel = normalizarTelefono(req.body?.telefono);
@@ -220,7 +224,7 @@ app.post('/api/verificacion/enviar', async (req, res) => {
   const limite = await limiteEnvio(tel, proposito, req.ip);
   if (limite) return falla(res, 429, limite);
   const respuesta = { ok: true, reenviar_en: ESPERA_REENVIO_S };
-  // Para recuperar el PIN no revelamos si el número tiene cuenta: respondemos igual, pero solo enviamos si existe.
+  // Para recuperar la contraseña no revelamos si el número tiene cuenta: respondemos igual, pero solo enviamos si existe.
   if (proposito === 'pin' && !await existeTelefono(tel)) return res.json(respuesta);
 
   const codigo = await crearCodigo(tel, proposito, req.ip);
@@ -236,14 +240,14 @@ app.post('/api/verificacion/enviar', async (req, res) => {
 
 app.post('/api/pin/restablecer', async (req, res) => {
   const tel = normalizarTelefono(req.body?.telefono);
-  const { codigo, pin } = req.body ?? {};
-  if (!/^\d{6}$/.test(String(pin ?? ''))) return falla(res, 400, 'El PIN debe tener 6 dígitos');
+  const { codigo, clave } = req.body ?? {};
+  if (!claveValida(clave)) return falla(res, 400, ERROR_CLAVE);
   const error = await verificarCodigo(tel, 'pin', codigo);
   if (error) return falla(res, 400, error);
   const usuario = await uno('SELECT * FROM usuarios WHERE telefono = ? AND activo = 1', tel);
   if (!usuario) return falla(res, 404, 'No encontramos una cuenta con ese teléfono');
   await lote([
-    ['UPDATE usuarios SET pin_hash = ? WHERE id = ?', hashPin(pin), usuario.id],
+    ['UPDATE usuarios SET pin_hash = ? WHERE id = ?', hashPin(clave), usuario.id],
     ['DELETE FROM sesiones WHERE usuario_id = ?', usuario.id], // cierra las sesiones de otros teléfonos
   ]);
   limpiarFallos(tel);
@@ -251,32 +255,38 @@ app.post('/api/pin/restablecer', async (req, res) => {
 });
 
 app.post('/api/registro', async (req, res) => {
-  const { nombre, telefono, pin, codigo, rol = 'pasajero', conductor } = req.body ?? {};
+  const { nombre, telefono, clave, codigo, rol = 'pasajero', conductor } = req.body ?? {};
   const tel = normalizarTelefono(telefono);
+  const correo = normalizarCorreo(req.body?.correo);
   if (!texto(nombre) || !telefonoValido(tel)) return falla(res, 400, 'Escribe tu nombre y un teléfono válido');
-  if (!/^\d{6}$/.test(String(pin ?? ''))) return falla(res, 400, 'El PIN debe tener 6 dígitos');
+  if (!correoValido(correo)) return falla(res, 400, 'Escribe un correo válido');
+  if (!claveValida(clave)) return falla(res, 400, ERROR_CLAVE);
   const vehiculo = rol === 'conductor' ? datosVehiculo(conductor) : null;
   if (rol === 'conductor' && !vehiculo) return falla(res, 400, 'Completa los datos de tu vehículo y tu cédula');
   if (await existeTelefono(tel)) return falla(res, 409, 'Ese teléfono ya está registrado');
+  if (await uno('SELECT 1 AS si FROM usuarios WHERE correo = ?', correo)) return falla(res, 409, 'Ese correo ya está registrado');
   const error = await verificarCodigo(tel, 'registro', codigo);
   if (error) return falla(res, 400, error);
 
   await lote([
-    [`INSERT INTO usuarios (rol, nombre, telefono, pin_hash) VALUES ('pasajero', ?, ?, ?)`, texto(nombre), tel, hashPin(pin)],
+    [`INSERT INTO usuarios (rol, nombre, telefono, correo, pin_hash) VALUES ('pasajero', ?, ?, ?, ?)`, texto(nombre), tel, correo, hashPin(clave)],
     ...(vehiculo ? [sentenciaConductor(tel, vehiculo)] : []),
   ]);
   res.json(await iniciarSesion(await uno('SELECT * FROM usuarios WHERE telefono = ?', tel)));
 });
 
+// Se entra con el teléfono o el correo y la contraseña (las cuentas viejas usan su PIN como contraseña).
 app.post('/api/login', async (req, res) => {
-  const tel = normalizarTelefono(req.body?.telefono);
-  if (bloqueado(tel)) return falla(res, 429, 'Demasiados intentos. Espera 15 minutos.');
-  const usuario = await uno('SELECT * FROM usuarios WHERE telefono = ? AND activo = 1', tel);
-  if (!usuario || !verificarPin(req.body?.pin ?? '', usuario.pin_hash)) {
-    registrarFallo(tel);
-    return falla(res, 401, 'Teléfono o PIN incorrecto');
+  const dato = String(req.body?.usuario ?? '');
+  const porCorreo = dato.includes('@');
+  const cuenta = porCorreo ? normalizarCorreo(dato) : normalizarTelefono(dato);
+  if (bloqueado(cuenta)) return falla(res, 429, 'Demasiados intentos. Espera 15 minutos.');
+  const usuario = await uno(`SELECT * FROM usuarios WHERE ${porCorreo ? 'correo' : 'telefono'} = ? AND activo = 1`, cuenta);
+  if (!usuario || !verificarPin(req.body?.clave ?? '', usuario.pin_hash)) {
+    registrarFallo(cuenta);
+    return falla(res, 401, 'Datos de acceso incorrectos');
   }
-  limpiarFallos(tel);
+  limpiarFallos(cuenta);
   res.json(await iniciarSesion(usuario));
 });
 
